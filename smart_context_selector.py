@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 N8N Context Selector App - Pure Command Line Version
+Compatible with HTML interface
 
 Analyzes workflow prompts and creates optimal documentation bundles for Claude
 """
@@ -19,8 +20,52 @@ class N8NContextSelector:
         self.docs_dir = docs_dir
         self.context_output_dir = "smart_context_bundles"
         
-        # Knowledge base of n8n concepts and their related files
-        self.knowledge_base = {
+        # Try to load knowledge base from new config, fallback to hardcoded
+        self.knowledge_base = self._load_knowledge_base()
+        
+        # File patterns for specific searches
+        self.file_patterns = {
+            "core_always": [
+                "workflow", "trigger", "node", "connection", "execution",
+                "getting_started", "quickstart", "basics"
+            ],
+            "ai_specific": [
+                "agent", "chain", "memory", "tool", "langchain", "openai",
+                "anthropic", "chat", "completion", "embedding"
+            ],
+            "integration_specific": [
+                "oauth", "api", "webhook", "http", "credential", "authentication"
+            ]
+        }
+    
+    def _load_knowledge_base(self):
+        """Load knowledge base from config file or use hardcoded fallback"""
+        config_paths = [
+            # Try new package location first
+            "smart-context-selector/smart_context_selector/configs/n8n.json",
+            # Try relative path
+            "configs/n8n.json",
+            # Try current directory
+            "n8n.json"
+        ]
+        
+        for config_path in config_paths:
+            if os.path.exists(config_path):
+                try:
+                    with open(config_path, 'r', encoding='utf-8') as f:
+                        config = json.load(f)
+                        print(f"📁 Loaded config from: {config_path}")
+                        return config.get('knowledge_base', self._get_default_knowledge_base())
+                except Exception as e:
+                    print(f"⚠️  Error loading config from {config_path}: {e}")
+                    continue
+        
+        print("📁 Using built-in knowledge base")
+        return self._get_default_knowledge_base()
+    
+    def _get_default_knowledge_base(self):
+        """Fallback hardcoded knowledge base"""
+        return {
             # AI and LangChain
             "ai": ["ai_langchain", "getting_started"],
             "langchain": ["ai_langchain", "code_expressions"],
@@ -109,21 +154,6 @@ class N8NContextSelector:
             "pdf": ["nodes_integrations"],
             "upload": ["nodes_integrations", "workflows"],
             "download": ["nodes_integrations", "workflows"]
-        }
-        
-        # File patterns for specific searches
-        self.file_patterns = {
-            "core_always": [
-                "workflow", "trigger", "node", "connection", "execution",
-                "getting_started", "quickstart", "basics"
-            ],
-            "ai_specific": [
-                "agent", "chain", "memory", "tool", "langchain", "openai",
-                "anthropic", "chat", "completion", "embedding"
-            ],
-            "integration_specific": [
-                "oauth", "api", "webhook", "http", "credential", "authentication"
-            ]
         }
     
     def analyze_prompt(self, prompt: str) -> Dict[str, any]:
