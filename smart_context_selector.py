@@ -342,6 +342,8 @@ This bundle was intelligently curated to:
         try:
             bundle_name = os.path.basename(bundle_dir)
             
+            print(f"\n⚠️  Make sure your git remote is set to your own GitHub repository before pushing!")
+            print(f"   (Use 'git remote -v' to check and 'git remote set-url origin <your-repo-url>' to change)")
             print(f"📤 Pushing {bundle_name} to GitHub...")
             
             # Git commands

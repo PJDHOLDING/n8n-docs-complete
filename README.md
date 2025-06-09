@@ -52,6 +52,72 @@ This collection is specifically optimized for use with Claude and other AI assis
 - Modify categories in `organize_perfect.py` as needed
 - All source code included for customization
 
+## 🧠 Smart Context Bundles
+
+### What are Smart Context Bundles?
+
+Smart Context Bundles are intelligently selected subsets of the n8n documentation, tailored to your specific workflow needs. By describing your workflow, you can generate a focused documentation bundle that maximizes relevant context for Claude or other AI assistants, while staying within context size limits.
+
+### How to Use the Smart Context Selector UI
+
+1. Open `context_selector_ui.html` in your web browser (no server needed).
+2. Describe your n8n workflow in the prompt box (e.g., "Create an AI chatbot that monitors Slack messages, analyzes them with OpenAI, stores conversations in Airtable, and sends daily summaries via email").
+3. (Optional) Enter a custom bundle name and choose whether to auto-push to GitHub.
+4. Click **Analyze & Create Command**.
+5. Review the analysis and copy the generated command.
+6. Run the command in your terminal to generate the bundle.
+
+### How to Generate a Bundle from the Command Line
+
+You can also generate a smart context bundle directly:
+
+```bash
+python3.11 smart_context_selector.py --prompt "<your workflow description>" [--name <bundle_name>] [--push]
+```
+- `--prompt` (required): Your workflow description.
+- `--name` (optional): Custom name for the bundle.
+- `--push` (optional): Automatically push the bundle to GitHub.
+
+### Example Workflow
+
+Suppose you want to build a workflow that syncs Salesforce data with Google Sheets and sends business reports via email. You would:
+
+1. Enter this prompt in the UI or command line:
+   > Sync Salesforce data with Google Sheets daily and generate business reports via email
+2. The tool will analyze your needs and select the most relevant documentation files.
+3. Run the generated command to create your bundle.
+4. Upload the resulting bundle to Claude as context for your project.
+
+Smart Context Bundles help you get the most out of AI-powered workflow building by providing only the most relevant n8n documentation for your use case.
+
+## ⚠️ Important: Use Your Own GitHub Repository
+
+By default, the smart context bundle tool will push to the GitHub remote configured in your local git repository. To ensure you do not push to the original author's repository, you must set up your own GitHub remote before using the `--push` option.
+
+### How to Set Up Your Own GitHub Remote
+
+1. **Remove the existing remote (if any):**
+   ```sh
+   git remote remove origin
+   ```
+2. **Add your own GitHub repository as the remote:**
+   ```sh
+   git remote add origin https://github.com/<your-username>/<your-repo>.git
+   ```
+3. **(Optional) Set the default branch if needed:**
+   ```sh
+   git branch -M main
+   ```
+4. **Push the code to your own repo:**
+   ```sh
+   git push -u origin main
+   ```
+
+### Warning
+- The tool will push to whatever remote is configured in your local git.
+- Make sure you have permission to push to the repository you set as the remote.
+- You will use your own GitHub authentication (SSH keys or personal access tokens).
+
 ## 🛠️ Scraping Scripts
 
 The repository includes the complete scraping pipeline:
