@@ -1,0 +1,36 @@
+name: Sync upstream (mirror)
+on:
+  schedule:
+    - cron: "0 */6 * * *"   # sync toutes les 6h
+  workflow_dispatch:        # permet aussi de lancer à la main
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/digibooms25/n8n-docs-complete.git
+          git fetch upstream
+
+      - name: Detect default branch
+        id: def
+        run: |
+          DB=$(git remote show upstream | sed -n '/HEAD branch/s/.*: //p')
+          echo "branch=$DB" >> $GITHUB_OUTPUT
+
+      - name: Mirror upstream default branch
+        run: |
+          git checkout "${{ steps.def.outputs.branch }}"
+          git reset --hard "upstream/${{ steps.def.outputs.branch }}"
+          git push origin "${{ steps.def.outputs.branch }}" --force
+
+Add workflow to sync fork with upstream
