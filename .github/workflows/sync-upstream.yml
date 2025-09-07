@@ -1,8 +1,8 @@
 name: Sync upstream (mirror)
 on:
   schedule:
-    - cron: "0 */6 * * *"   # sync toutes les 6h
-  workflow_dispatch:        # permet aussi de lancer à la main
+    - cron: "0 */6 * * *"   # toutes les 6h
+  workflow_dispatch:        # lancement manuel
 
 permissions:
   contents: write
@@ -11,26 +11,26 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout fork
+      - name: Checkout (fork)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Add upstream remote
+      - name: Configure git (bot)
         run: |
-          git remote add upstream https://github.com/digibooms25/n8n-docs-complete.git
-          git fetch upstream
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Detect default branch
-        id: def
+      - name: Add upstream & fetch
         run: |
-          DB=$(git remote show upstream | sed -n '/HEAD branch/s/.*: //p')
-          echo "branch=$DB" >> $GITHUB_OUTPUT
+          git remote | grep -q upstream || git remote add upstream https://github.com/digibooms25/n8n-docs-complete.git
+          git fetch upstream main
 
-      - name: Mirror upstream default branch
+      - name: Mirror upstream/main -> origin/main
         run: |
-          git checkout "${{ steps.def.outputs.branch }}"
-          git reset --hard "upstream/${{ steps.def.outputs.branch }}"
-          git push origin "${{ steps.def.outputs.branch }}" --force
+          git checkout -B main
+          git reset --hard upstream/main
+          git push origin main --force
+
 
 Add workflow to sync fork with upstream
